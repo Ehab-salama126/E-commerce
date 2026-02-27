@@ -22,23 +22,31 @@ await connectDB();
 
 //CORS
 const whiteList = ["http://127.0.0.1:5500"];
+
 app.use((req, res, next) => {
+  const origin = req.header("origin");
+  console.log(origin);
+
   if (req.originalUrl.includes("/auth/activate_account")) {
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "Get");
+    res.setHeader("Access-Control-Allow-Methods", "GET");
     return next();
   }
 
-  if (!whiteList.includes(req.header("origin"))) {
+  if (!origin) {
+    return next();
+  }
+
+  if (!whiteList.includes(origin)) {
     return next(new Error("Blocked by CORS !"));
   }
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Methods", "*");
-  res.setHeader("Access-Control-Private-Network", true);
   return next();
 });
+
 
 //morgan
 app.use(morgan("combined"));
